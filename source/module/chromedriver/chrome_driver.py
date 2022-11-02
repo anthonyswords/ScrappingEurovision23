@@ -3,8 +3,8 @@ from selenium import webdriver
 from datetime import datetime
 
 def driver_init(url):
-    print("\t\tInitializing chrome driver...")
-    time_start = datetime.now()
+    #print("\t\tInitializing chrome driver...")
+    #time_start = datetime.now()
 
     try:
         chrome_options = webdriver.ChromeOptions()
@@ -22,6 +22,6 @@ def driver_init(url):
         driver.get(url)                            # Load the page
     except Exception as e:
         x = e
-    print("\t\tFinished: ", (datetime.now() - time_start).total_seconds(), "seconds")
+    #print("\t\tFinished: ", (datetime.now() - time_start).total_seconds(), "seconds")
 
     return driver

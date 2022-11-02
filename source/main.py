@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
 
 
-    if True:
+    if False:
 
         years = list(range(1957, 2023))
         #years = [2022]
