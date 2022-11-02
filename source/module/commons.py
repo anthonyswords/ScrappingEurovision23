@@ -32,7 +32,16 @@ def get_countries():
     print("\t\tFinished: ", (datetime.now() - time_start).total_seconds(), "seconds")
     return countries
 
+
 def generate_csv(project_path, data_table, filename):
+    """
+    Create a new file in project_path + filename path with the data_table content
+
+    :param project_path: Path where project is found
+    :param data_table: data table to export
+    :param filename: name of file to generate
+    :return: None
+    """
     datasets_directory = project_path + "..\dataset\\"
     today = date.today()
     today_date = today.strftime("%Y%m%d")
