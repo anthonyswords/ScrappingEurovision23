@@ -3,6 +3,20 @@ from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.keys import Keys
 import re
 from typing import List
+from module.commons import generate_csv, os, date
+
+def export_poll_2022(project_path):
+    start_time = datetime.now()
+    print("Starting job export Polled Eurovision 2023 table...")
+    
+    data_table = WebScrapperPolled22(WebScrapperBetHouse23).get_df_polled22(self)
+    # Export to file
+    generate_csv(project_path, data_table, 'Polled_Eurovision_2022.csv')
+
+    print("Job finished: Export countries. Elapsed time: ", (datetime.now() - start_time).total_seconds(),
+          "seconds")
+
+
 
 class WebScrapperPolled22(WebScrapperBetHouse23):
     def __init__(self):
