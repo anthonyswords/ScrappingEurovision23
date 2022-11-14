@@ -28,6 +28,7 @@ def driver_init(url):
         driver = webdriver.Chrome(chromedriver_path, options=chrome_options)
         driver.implicitly_wait(SELENIUM_IMPLICIT_WAIT)               # Set the implicit wait to locate elements
         driver.get(url)                            # Load the page
+        print(driver.execute_script("return navigator.userAgent"))         # Check if the User Agent is ok
     except Exception as e:
         print("Error with chromedriver: " + str(e))
         return None

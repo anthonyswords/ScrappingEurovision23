@@ -9,11 +9,12 @@ https://eurovisionworld.com/eurovision/1957 (símbols dels df inclòs)
 4. Scrapping: https://eurovisionworld.com/eurovision/'country'
 5. Scrpping: Twitter API look up some Eurovision hash according to the country and date. -- resta pendent.
 
-Pendent
+Pendent (11/11/22)
 --------
-Toni: automatitzar 'User Agent', word context, tasques Notebook
+Toni: automatitzar 'User Agent'(realment caldria? Només fer un print per fer check de quin usem i prou), word - context (pendent), tasques Notebook (fetes)
+Toni: dubte sobre la funció de generar_csv() - 
 Jordi: comprovar quin 'User Agent està utilitzant des de Chromedriver, optimització de codi.
 
-Indicadors: bethousing, historics by Countries, polls, calendar, API Twitter.
 
+Indicadors: bethousing, historics by Countries, polls, calendar, API Twitter.
 Punts important: descarregar les imatges/icones de les banderes de cada país. 
