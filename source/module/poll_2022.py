@@ -1,16 +1,16 @@
-from selenium import webdriver
-from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.common.keys import Keys
+
 import re
 from typing import List
 from module.commons import generate_csv, os, date
 from module.bet_house_2023 import *
+from module.chromedriver.chrome_driver import *
+from selenium.webdriver.common.by import By
 
 def export_poll_2022(project_path):
     start_time = datetime.now()
     print("Starting job export Polled Eurovision 2023 table...")
-    
-    data_table = WebScrapperPolled22(WebScrapperBetHouse23).get_df_polled22(self)
+    polled = WebScrapperPolled22()#WebScrapperBetHouse23)
+    data_table = polled.get_df_polled22()
     # Export to file
     generate_csv(project_path, data_table, 'Polled_Eurovision_2022.csv')
 
@@ -19,9 +19,11 @@ def export_poll_2022(project_path):
 
 
 
-class WebScrapperPolled22(WebScrapperBetHouse23):
+class WebScrapperPolled22():
     def __init__(self):
-        WebScrapperBetHouse23.__init__(self)
+        self.url = "https://eurovisionworld.com/odds/eurovision"
+        self.driver = driver_init(self.url)
+
         
     def get_raw_list_polled(self) -> List:
         """
@@ -30,12 +32,17 @@ class WebScrapperPolled22(WebScrapperBetHouse23):
         Returns:
             List
         """
-        raw = self.driver.find_element_by_class_name('poll_inner').text
-        text = re.sub(r',', '.', raw[44:]) # extracting all text from 1st row until the end
+        parent_div = self.driver.find_element(By.ID, "poll_50939")
+
+        parent_div.click() # click parent to make table visible
+        raw = parent_div.find_element(By.CLASS_NAME, "poll_r").text # get content from table
+
+        text = re.sub(r',', '.', raw[:]) # extracting all text from 1st row until the end
         text = re.sub(r'[\r\n]+', ',', text) # replacing any spaces by coma
         list_text = text.split(',') # splitting each own word delimited by the coma
         split = list_text[-1].split(':') # we need to divided into two pieces to match the df's length
         list_text = list_text[:-1]
+
         # adding the 'closed poll', 'xxx votes' distinctly
         for i in split:
             list_text.append(i)
@@ -68,10 +75,19 @@ class WebScrapperPolled22(WebScrapperBetHouse23):
             List
         """
         total = []
-        for i in range(1, len(country)):
+        # click parent to make table visible
+        parent_div = self.driver.find_element(By.ID, "poll_50939")
+        parent_div.click()
+
+        # click poll to toggle from percent to total votes
+        poll = parent_div.find_element(By.CLASS_NAME, "poll_inner")
+        poll.click()
+
+        # find votes value and add to total list
+        for i in range(1, len(country) + 1):
             total.append(int(re.findall(r'"(\d+,{0,1}\d+)"', 
-                                        self.driver.find_element_by_xpath(f'//*[@id="poll_92064"]/div/div[1]/div[{i}]').get_attribute("innerHTML") )[0].replace(',','')))
-        total.append(sum(total))
+                                        self.driver.find_element(By.XPATH, f'//*[@id="poll_50939"]/div/div[1]/div[{i}]').get_attribute("innerHTML") )[0].replace(',','')))
+
         return total
         
     def get_df_polled22(self) -> pd.DataFrame:

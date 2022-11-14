@@ -9,36 +9,57 @@ from module.chromedriver.chrome_driver import *
 from module.commons import *
 from multiprocessing import JoinableQueue, Queue, Process
 import threading
+import time
 
-def process_export_country(years_to_process, results_q):
-    year = years_to_process.get()
+
+lock = threading.Lock()
+
+def process_export_country(years_to_process, temp_path, thread_number):
+
+
+    f_open = open(temp_path + str(thread_number) + "_votes.csv", "w")
+
+    with lock:
+        year = years_to_process.get()
 
     # while there are tasks to process
     while year:
-        (project_path, edition_year, countries_codes) = year
+        (edition_year, countries_codes) = year
 
-        scoreboard = Scoreboard(project_path, edition_year, countries_codes)
+        scoreboard = Scoreboard(edition_year, countries_codes)
         data_table = scoreboard.export()
 
-        results_q.acquire()
-        # save the result in the queue
-        results_q.put(data_table)
-        results_q.release()
+        # write result to temp file
+        for vote in data_table:
+            output_string = ",".join(vote) + "\n"
+            f_open.write(output_string)
 
-        years_to_process.acquire()
-        # Mark the task as done
+        with lock:
+            # Mark the task as done
+            years_to_process.task_done()
+
+            # get the next task to porcess
+            year = years_to_process.get()
+
+    with lock:
+        # Mark the last task as done, it was None.
         years_to_process.task_done()
 
-        # get the next task to porcess
-        year = years_to_process.get()
-        years_to_process.release()
-    # Mark the last task as done, it was None.
-    years_to_process.task_done()
-
+    f_open.close()
 def export_scoreboard(project_path, processes_number=8):
     start_time = datetime.now()
     print("Starting job export scoreboard...")
 
+    # Generate outfile
+    datasets_directory = project_path + "..\dataset\\"
+    today = date.today()
+    today_date = today.strftime("%Y%m%d")
+    today_folder = datasets_directory + today_date + "\\"
+    tmp_folder = today_folder + "tmp\\"
+    if not os.path.exists(today_folder):
+        os.mkdir(datasets_directory + today_date)
+    if not os.path.exists(tmp_folder):
+        os.mkdir(tmp_folder)
     # Get the countries to include in the export
     (countries_url, countries_codes) = get_countries()
 
@@ -46,17 +67,14 @@ def export_scoreboard(project_path, processes_number=8):
     years_all = get_edition_years()
 
     # exclude 2023 (not celebrated yet) and 2020 (suspended due to covid)
-    years = [year for year in years_all if year != '2023' and year != '2020' and year != '1956' ] #and int(year) > 2014
-
-    # Initialize results queue
-    results_q = Queue()
+    years = [year for year in years_all if year not in ('2023', '2020', '1956')]
 
     # Initialize Tasks queue
     years_to_process = JoinableQueue()
 
     # Add to queue the tasks to do
     for edition_year in years:
-        years_to_process.put((project_path,edition_year, countries_codes))
+        years_to_process.put((edition_year, countries_codes))
 
     # Add to queue one None for each process
     for _ in range(processes_number):
@@ -65,39 +83,36 @@ def export_scoreboard(project_path, processes_number=8):
     # Create and start the processes
     for i in range(processes_number):
         process = Process(
-            target=process_export_country, args=(years_to_process, results_q)
+            target=process_export_country, args=(years_to_process,  tmp_folder, i)
         )
         process.start()
 
     # Wait until all tasks have finished
     years_to_process.join()
 
-    datasets_directory = project_path + "..\dataset\\"
-    today = date.today()
-    today_date = today.strftime("%Y%m%d")
-    today_folder = datasets_directory + today_date + "\\"
-    if not os.path.exists(today_folder):
-        os.mkdir(today_folder)
+    # open file where data will be merged
+    f_open_merged = open(today_folder + "Votes_From_Scoreboard.csv", "w")
 
-    f_open = open(today_folder + "votes3.csv", "w")
-    file_headers = ['edition_year','country_code_column','value','country_code_row','vote_type']
+    # Add headers to file
+    file_headers = ['edition_year', 'country_code_column', 'value', 'country_code_row', 'vote_type']
     file_headers_string = ",".join(file_headers) + "\n"
-    f_open.write(file_headers_string)
+    f_open_merged.write(file_headers_string)
 
-    countries = []
-    # Read results from results queue
-    while not results_q.empty():
-        val = results_q.get()
-        if val[0][0] not in countries:
-            countries += [val[0][0]]
-        for vote in val:
-            output_string = ",".join(vote) + "\n"
-            f_open.write(output_string)
-    print(countries)
-    print(len(countries))
-    f_open.close()
+    # for each temp file
+    for file in os.listdir(tmp_folder):
+        f_open_tmp = open(tmp_folder + "//" + file, 'r')
+        lines = f_open_tmp.readlines()
+        for line in lines:
+            # Write every line to output file
+            f_open_merged.write(line)
+        f_open_tmp.close()
+        # remove temp file
+        os.remove(tmp_folder + "//" + file)
 
-    print("Job finished: Export countries. Elapsed time: ", (datetime.now() - start_time).total_seconds(),
+    f_open_merged.close()
+    # remove temp folder
+    os.rmdir(tmp_folder)
+    print("Job finished: Export editions scoreboard. Elapsed time: ", (datetime.now() - start_time).total_seconds(),
           "seconds")
 
 
@@ -105,15 +120,12 @@ class Scoreboard():
 
     driver = ""
     url = ""
-    project_path = ""
     exp_lst_countries = []
-    #exp_lst_votes = []
     edition_year = ""
     load_votes = True
     countries_codes = dict()
-    def __init__(self, project_path, edition_year, countries_codes):
+    def __init__(self, edition_year, countries_codes):
         self.start_time = datetime.now()
-        self.project_path = project_path
         self.url = "https://eurovisionworld.com/eurovision/" + str(edition_year)
         self.edition_year = str(edition_year)
         self.driver = driver_init(self.url)
@@ -220,6 +232,6 @@ class Scoreboard():
             data_table = load_votes_table("Jury")
             exp_lst_votes += data_table
         print("\t\tExport " + self.edition_year + " finished: ", (datetime.now() - self.start_time).total_seconds(),
-              "seconds: " + str(len(exp_lst_votes)))
+              "seconds")
         return exp_lst_votes
 

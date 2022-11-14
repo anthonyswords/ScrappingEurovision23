@@ -55,7 +55,7 @@ def request_tweets_count_from_api(project_path):
     }
 
     # Export to file
-    generate_csv(project_path, data_table, 'Tweets_Count.csv')
+    generate_csv(project_path, data_table, 'Tweets_Count_With_Eurovision_Hashtag.csv')
 
     print("Job finished: Export Twitter API. Elapsed time: ", (datetime.now() - start_time).total_seconds(),
           "seconds")

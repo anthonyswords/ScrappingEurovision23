@@ -90,7 +90,7 @@ def export_historic_countries(project_path, processes_number = 8):
     }
 
     # Export to file
-    generate_csv(project_path, data_table, 'historic_countries.csv')
+    generate_csv(project_path, data_table, 'Countries_Editions_Songs.csv')
 
     print("Job finished: Export countries. Elapsed time: ", (datetime.now() - start_time).total_seconds(),
           "seconds")
@@ -139,7 +139,7 @@ class historic_country():
                 data_table += [[self.country_name, year, song, artist, place, points, qualification]]
 
         except Exception as e:
-            print("Error while exporting historic country: " + str(e))
+            print("Error while exporting historic country "+self.country_name+": " + str(e))
 
 
         print("\t\tExport " + self.country_name+" finished: ", (datetime.now() - self.start_time).total_seconds(), "seconds")
