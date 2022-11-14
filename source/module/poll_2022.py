@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 import re
 from typing import List
 from module.commons import generate_csv, os, date
+from module.bet_house_2023 import *
 
 def export_poll_2022(project_path):
     start_time = datetime.now()
@@ -29,7 +30,7 @@ class WebScrapperPolled22(WebScrapperBetHouse23):
         Returns:
             List
         """
-        raw = driver.find_element_by_class_name('poll_inner').text
+        raw = self.driver.find_element_by_class_name('poll_inner').text
         text = re.sub(r',', '.', raw[44:]) # extracting all text from 1st row until the end
         text = re.sub(r'[\r\n]+', ',', text) # replacing any spaces by coma
         list_text = text.split(',') # splitting each own word delimited by the coma
@@ -69,7 +70,7 @@ class WebScrapperPolled22(WebScrapperBetHouse23):
         total = []
         for i in range(1, len(country)):
             total.append(int(re.findall(r'"(\d+,{0,1}\d+)"', 
-                                        driver.find_element_by_xpath(f'//*[@id="poll_92064"]/div/div[1]/div[{i}]').get_attribute("innerHTML") )[0].replace(',','')))
+                                        self.driver.find_element_by_xpath(f'//*[@id="poll_92064"]/div/div[1]/div[{i}]').get_attribute("innerHTML") )[0].replace(',','')))
         total.append(sum(total))
         return total
         
