@@ -2,7 +2,7 @@
 from module.scoreboard import *
 from module.historic_country import *
 from module.bet_house_2023 import *
-form module.poll_2022 import *
+from module.poll_2022 import *
 from pathlib import Path
 if __name__ == "__main__":
     project_path = str(Path(__file__).parent.resolve()) + "\\"
