@@ -20,6 +20,7 @@ def driver_init(url):
         driver = webdriver.Chrome("C:\\Users\\PCE6\\Desktop\\chromedriver\\chromedriver.exe",options=chrome_options)#"chromedriver\\chromedriver.exe",options=chrome_options)
         driver.implicitly_wait(SELENIUM_IMPLICIT_WAIT)               # Set the implicit wait to locate elements
         driver.get(url)                            # Load the page
+        print(driver.execute_script("return navigator.userAgent"))         # Check if the User Agent is ok
     except Exception as e:
         x = e
     #print("\t\tFinished: ", (datetime.now() - time_start).total_seconds(), "seconds")
