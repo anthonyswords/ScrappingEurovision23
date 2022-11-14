@@ -1,30 +1,19 @@
+import time
 
 from module.scoreboard import *
 from module.historic_country import *
 from pathlib import Path
+from module.commons import *
+from module.api_twitter import *
 if __name__ == "__main__":
     project_path = str(Path(__file__).parent.resolve()) + "\\"
+    try:
+        #request_tweets_count_from_api(project_path)
 
-    export_historic_countries(project_path)
+        #export_historic_countries(project_path, processes_number=8)
+        export_scoreboard(project_path, processes_number=8)
 
 
-
-    if False:
-
-        years = list(range(1957, 2023))
-        #years = [2022]
-        try:
-
-            for edition_year in years:
-                if edition_year != 2020:
-                    print("Start exporting", edition_year)
-                    time_start = datetime.now()
-                    scoreboard = WebScrapperScoreBord(project_path,edition_year)
-                    scoreboard.load_countries()
-                    scoreboard.load_votes()
-                    scoreboard.export_files()
-
-                    print("Export finished ", edition_year,":",  (datetime.now() - time_start).total_seconds(), "seconds")
-
-        except Exception as e:
-            print(e)
+    except Exception as e:
+        print(e)
+    print("End of program")

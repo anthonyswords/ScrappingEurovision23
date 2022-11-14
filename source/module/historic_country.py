@@ -1,36 +1,52 @@
 from module.chromedriver.chrome_driver import *
 from module.commons import *
 from multiprocessing import JoinableQueue, Queue, Process
-
+from selenium.webdriver.common.by import By
+from datetime import datetime
 
 def process_export_country(countries_to_process, results_q):
+    """
+    Function executed in every parallel process. It will be reading pending countries from queue "countries_to_process"
+    and storing the result in queue "resuslts_q"
+    :param countries_to_process: Queue with countries to export
+    :param results_q: Queue in which result will be stored
+    :return:
+    """
 
     country = countries_to_process.get()
 
-    # Apliquem la logica mentre hi hagi tasques
+    # while there are tasks to process
     while country:
         (project_path, country_name, country_link) = country
         hc = historic_country(project_path, country_name, country_link)
         data_table = hc.export()
 
-        # Guardem la llista a la cua de resultats si aquesta no està buida
+        # save the result in the queue
         results_q.put(data_table)
 
-        # Marquem la tasca com executada
+        # Mark the task as done
         countries_to_process.task_done()
-        # Obtenim la següent tasca a realitzar
+
+        # get the next task to porcess
         country = countries_to_process.get()
 
-    # Marquem la ultima tasca com a feta, era None.
+    # Mark the last task as done, it was None.
     countries_to_process.task_done()
 
 
 def export_historic_countries(project_path, processes_number = 8):
+    """
+    Given a processes number, generates the historic Eurovision participation of every country. The result will be saved
+    in csv file allocated in project_path
+    :param project_path: Path where the data will be stored
+    :param processes_number: Number of parallel processes that will be used
+    :return:
+    """
     start_time = datetime.now()
     print("Starting job export countries...")
 
     # Get countries list to export
-    countries = get_countries()
+    (countries_url, countries_codes) = get_countries()
 
     # Initialize results queue
     results_q = Queue()
@@ -39,8 +55,8 @@ def export_historic_countries(project_path, processes_number = 8):
     countries_to_process = JoinableQueue()
 
     # Add to queue the tasks to do
-    for country_name in countries.keys():
-        countries_to_process.put((project_path, country_name, countries[country_name]))
+    for country_name in countries_url.keys():
+        countries_to_process.put((project_path, country_name, countries_url[country_name]))
 
     # Add to queue one None for each process
     for _ in range(processes_number):
@@ -57,20 +73,20 @@ def export_historic_countries(project_path, processes_number = 8):
     countries_to_process.join()
 
     # Read results from results queue
-    data_table = []
+    data_table_list = []
     while not results_q.empty():
         val = results_q.get()
-        data_table += val
+        data_table_list += val
 
     # Create output data_table
     data_table = {
-        'country':[x[0] for x in data_table],
-        'years': [x[1] for x in data_table],
-        'songs': [x[2] for x in data_table],
-        'artists': [x[3] for x in data_table],
-        'places': [x[4] for x in data_table],
-        'points': [x[5] for x in data_table],
-        'qualification': [x[6] for x in data_table],
+        'country':[x[0] for x in data_table_list],
+        'years': [x[1] for x in data_table_list],
+        'songs': [x[2] for x in data_table_list],
+        'artists': [x[3] for x in data_table_list],
+        'places': [x[4] for x in data_table_list],
+        'points': [x[5] for x in data_table_list],
+        'qualification': [x[6] for x in data_table_list],
     }
 
     # Export to file
@@ -80,7 +96,7 @@ def export_historic_countries(project_path, processes_number = 8):
           "seconds")
 
 class historic_country():
-    project_path = "",
+    project_path = ""
     country_name = ""
     driver = ""
     url = ""
@@ -94,12 +110,16 @@ class historic_country():
 
 
     def export(self):
+        """
+        Generate the historic Eurovision participation from one country and returns data table
+        :return: data table with historic Eurovision participation from country
+        """
         data_table = []
         try:
             rows = self.driver.find_elements(By.XPATH,
                                                     "//*[@class='v_table table_sort table_first table_last table_sort_added']/tbody/tr")
 
-
+            # for every year participation
             for row in rows:
                 columns = row.find_elements(By.XPATH, './/td')
                 year = columns[0].text
@@ -114,11 +134,14 @@ class historic_country():
                 place = columns[2].text
                 points = columns[3].text
                 qualification = columns[4].text
+
+                # Add result to data table
                 data_table += [[self.country_name, year, song, artist, place, points, qualification]]
 
         except Exception as e:
-            x =  e
+            print("Error while exporting historic country: " + str(e))
 
 
         print("\t\tExport " + self.country_name+" finished: ", (datetime.now() - self.start_time).total_seconds(), "seconds")
+
         return data_table

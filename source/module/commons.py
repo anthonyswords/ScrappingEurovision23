@@ -5,6 +5,7 @@ from datetime import date
 import os
 import pandas as pd
 import string
+from datetime import datetime
 
 def get_countries():
     """
@@ -12,7 +13,8 @@ def get_countries():
 
     :return: Dictionary. Key: Country Name; Value: Country URL Name
     """
-    countries = dict()
+    countries_url = dict()
+    countries_codes = dict()
     # start Chrome Driver
     countries_driver = driver_init(url="https://eurovisionworld.com/national")
     print("\t\tStart loading countries to export...")
@@ -24,14 +26,39 @@ def get_countries():
     rows = column_with_countries.find_elements(By.XPATH, './/a')
     for row in rows:
         country_name = row.text
+        country_code = row.get_attribute('class').split("_")[-1]
         country_link = row.get_attribute('href').split("/")[-1]
         country_name = ''.join(x for x in country_name if x in string.printable).strip()
         # Add the result to the result dict
-        countries[country_name] = country_link
+        countries_url[country_name] = country_link
+        countries_codes[country_code] = country_name
+    print("\t\tFinished: ", (datetime.now() - time_start).total_seconds(), "seconds")
+    return (countries_url, countries_codes)
+
+
+def get_edition_years():
+    """
+    Returns a list with the edition years
+
+    :return: List with edition years
+    """
+    edition_years = []
+    # start Chrome Driver
+    countries_driver = driver_init(url="https://eurovisionworld.com/national")
+    print("\t\tStart loading years to export...")
+    time_start = datetime.now()
+    # Obtain the first column of data table
+    column_with_countries = countries_driver.find_elements(By.XPATH,
+                                          "//*[@class='national_fp_table']/tbody/tr[1]/td")[1]
+    # Get and iterate every row
+    rows = column_with_countries.find_elements(By.XPATH, './/a')
+    for row in rows:
+        edition_year = row.text
+        edition_years += [edition_year]
+
 
     print("\t\tFinished: ", (datetime.now() - time_start).total_seconds(), "seconds")
-    return countries
-
+    return edition_years
 
 def generate_csv(project_path, data_table, filename):
     """
