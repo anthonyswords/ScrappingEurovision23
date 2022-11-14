@@ -3,6 +3,19 @@ import requests
 from bs4 import BeautifulSoup
 from typing import List
 from datetime import datetime
+from module.commons import generate_csv, os, date
+
+
+def export_odds_2023_df(project_path):
+    start_time = datetime.now()
+    print("Starting job export Odds Rate Eurovision 2023 table...")
+    
+    data_table = WebScrapperBetHouse23().get_df_BetHouse23
+    # Export to file
+    generate_csv(project_path, data_table, 'odds_rate_table2023.csv')
+
+    print("Job finished: Export countries. Elapsed time: ", (datetime.now() - start_time).total_seconds(),
+          "seconds")
 
 class WebScrapperBetHouse23():
 
