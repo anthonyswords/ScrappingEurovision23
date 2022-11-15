@@ -1,20 +1,9 @@
 # ScrappingEurovision23
 
-To-do list objectives.
+## Descripció
 
-1. Scrapping: scoreboard d'Eurovisió per fer un anàlisis de la tendéncia dels vots dels punts històrics a Eurovisió des de 1957 fins 2022:
-https://eurovisionworld.com/eurovision/1957 (símbols dels df inclòs)
-2. Scrapping: main dataframe https://eurovisionworld.com/odds/eurovision
-3. Scrapping: Who should win Eurovision 2022? poll dataframe 
-4. Scrapping: https://eurovisionworld.com/eurovision/'country'
-5. Scrpping: Twitter API look up some Eurovision hash according to the country and date. -- resta pendent.
+Aquesta projecte s'ha realitzat sota el context de l'assignatura Tipologia i cicle de vida de les dades, del Màster en Ciència de Dades de la Universitat Oberta de Catalunya. S'hi apliquen tècniques de web scraping mitjançant el llenguatge de programació Python per extreur dades de la web [EurovisionWorld](https://eurovisionworld.com/odds/eurovision) i generar cinc dataset.
 
-Pendent (11/11/22)
---------
-Toni: automatitzar 'User Agent'(realment caldria? Només fer un print per fer check de quin usem i prou), word - context (pendent), tasques Notebook (fetes)
-Toni: dubte sobre la funció de generar_csv() - 
-Jordi: comprovar quin 'User Agent està utilitzant des de Chromedriver, optimització de codi.
+## Fitxers del codi font
 
-
-Indicadors: bethousing, historics by Countries, polls, calendar, API Twitter.
-Punts important: descarregar les imatges/icones de les banderes de cada país. 
+* **src/main.py**:
