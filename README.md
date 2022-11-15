@@ -7,7 +7,7 @@ Aquesta projecte s'ha realitzat sota el context de l'assignatura Tipologia i cic
 
 ## Fitxers del codi font
 
-* **dataset/20221114**: subcarpeta on 20221114 correspon a any-mes-dia de l'extracció dels CSV via scraping.
+* **dataset/20221114**: magatzem dels CSV on la subcarpeta 20221114 correspon a any-mes-dia de l'extracció dels CSV via scraping.
 * **requirements.txt**: llibreries i versions utilitzades
 * **source/**: carpeta modular on es localitza tot el codi font en llenguatge Python.
   * **source/main.py**: punt de partida. S'inicia el procés de scraping.
@@ -21,7 +21,7 @@ Aquesta projecte s'ha realitzat sota el context de l'assignatura Tipologia i cic
     * **source/module/scoreboard.py**: extraccció de cross-table de vots entre tots el països.
     * **source/module/chromedriver**: subcarpeta on es configura ChromeDriver
       * **source/module/chromedriver/chrome_driver.py**: configuració del User-Agent i entre d'altres opcions del WebDriver Chrome.
-      * * **source/module/chromedriver/chrome_driver.exe**: l'interfície WebDriver per iniciar el navegador Google Chrome via Selenium.
+      * **source/module/chromedriver/chrome_driver.exe**: l'interfície WebDriver per iniciar el navegador Google Chrome via Selenium.
 
 ## Dataset
 EL DOI del data set en format CSV:  https://doi.org/10.5281/zenodo.7323675
