@@ -14,7 +14,7 @@ def export_poll_2022(project_path):
     # Export to file
     generate_csv(project_path, data_table, 'Polled_Eurovision_2022.csv')
 
-    print("Job finished: Export countries. Elapsed time: ", (datetime.now() - start_time).total_seconds(),
+    print("Job finished: Export Polled Eurovision. Elapsed time: ", (datetime.now() - start_time).total_seconds(),
           "seconds")
 
 
@@ -32,10 +32,14 @@ class WebScrapperPolled22():
         Returns:
             List
         """
-        parent_div = self.driver.find_element(By.ID, "poll_50939")
 
-        parent_div.click() # click parent to make table visible
-        raw = parent_div.find_element(By.CLASS_NAME, "poll_r").text # get content from table
+        # click parent to make table visible
+        parent_div = self.driver.find_element(By.CLASS_NAME, "pageright")
+        parent_div.click()
+        poll_inner = parent_div.find_element(By.CLASS_NAME, "poll_inner")
+
+
+        raw = poll_inner.find_element(By.CLASS_NAME, "poll_r").text # get content from table
 
         text = re.sub(r',', '.', raw[:]) # extracting all text from 1st row until the end
         text = re.sub(r'[\r\n]+', ',', text) # replacing any spaces by coma
@@ -75,18 +79,17 @@ class WebScrapperPolled22():
             List
         """
         total = []
-        # click parent to make table visible
-        parent_div = self.driver.find_element(By.ID, "poll_50939")
-        parent_div.click()
 
-        # click poll to toggle from percent to total votes
+        # click parent to make table visible
+        parent_div = self.driver.find_element(By.CLASS_NAME, "pageright")
+        parent_div.click()
         poll = parent_div.find_element(By.CLASS_NAME, "poll_inner")
         poll.click()
 
         # find votes value and add to total list
         for i in range(1, len(country) + 1):
             total.append(int(re.findall(r'"(\d+,{0,1}\d+)"', 
-                                        self.driver.find_element(By.XPATH, f'//*[@id="poll_50939"]/div/div[1]/div[{i}]').get_attribute("innerHTML") )[0].replace(',','')))
+                                        self.driver.find_element(By.XPATH, f'//*[@class="box poll"]/div/div[1]/div[{i}]').get_attribute("innerHTML") )[0].replace(',','')))
 
         return total
         
