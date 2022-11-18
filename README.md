@@ -5,6 +5,8 @@
 
 Aquesta projecte s'ha realitzat sota el context de l'assignatura Tipologia i cicle de vida de les dades, del Màster en Ciència de Dades de la Universitat Oberta de Catalunya. S'hi apliquen tècniques de web scraping mitjançant el llenguatge de programació Python per extreur dades de la web [EurovisionWorld](https://eurovisionworld.com/odds/eurovision) i generar cinc dataset.
 
+**Atenció: es fa ús de WebDriver amb l'eina de Google Chrome com navegador. Tingeu present d'actualitzar aquest a la versió més recent.**
+
 ## Fitxers del codi font
 
 * **dataset/20221114**: magatzem dels CSV on la subcarpeta 20221114 correspon a any-mes-dia de l'extracció dels CSV via scraping.
