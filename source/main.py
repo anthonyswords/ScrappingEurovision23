@@ -1,17 +1,15 @@
-import time
-
 from module.scoreboard import *
 from module.historic_country import *
 from module.bet_house_2023 import *
 from module.poll_2022 import *
 from pathlib import Path
 from module.countries import *
-#from module.commons import *
 from module.api_twitter import *
+
 if __name__ == "__main__":
     start_time = datetime.now()
     print("*** Export started")
-    try :
+    try:
         project_path = str(Path(__file__).parent.resolve()) + "\\"
         export_countries(project_path)
         request_tweets_count_from_api(project_path)
